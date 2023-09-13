@@ -1,6 +1,5 @@
 import { UploadVideo } from ".";
 import puppeteer from "puppeteer-extra"
-import puppeteerStealthPlugin from "puppeteer-extra-plugin-stealth"
 import { $xclickElement, blockRequestsResources, sleep, waitUploadComplete } from "./utils";
 
 export async function youtubeUpload({title, videoPath, description, tags, thumbnailPath, visibility, launchOptions}: UploadVideo, cookies: any, event?: NodeJS.EventEmitter){
@@ -94,12 +93,12 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
     // Add the title value
     await textBoxes[0].focus()
     await sleep()
-    await textBoxes[0].evaluate((e) => ((e as any).__shady_native_textContent = ''))
+    await textBoxes[0].evaluate((e: any) => ((e as any).__shady_native_textContent = ''))
     await textBoxes[0].type(title.substring(0, maxTitleLen))
     // Add the Description content
     if(description){
       event?.emit("logs", "Writing video description")
-      await textBoxes[0].evaluate((e) => ((e as any).__shady_native_textContent = ''))
+      await textBoxes[0].evaluate((e: any) => ((e as any).__shady_native_textContent = ''))
       await textBoxes[1].type(description.substring(0, maxDescLen))
     }
     
@@ -140,10 +139,9 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
       }
       
       const nextBtnXPath = "//*[normalize-space(text())='Next']/parent::*[not(@disabled)]"
-      let next
       
       await page.waitForXPath(nextBtnXPath)
-      next = await page.$x(nextBtnXPath)
+      await page.$x(nextBtnXPath)
       await $xclickElement(nextBtnXPath, page)
       
       const isChannelMonetized = false
@@ -160,11 +158,12 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
                 'ytcp-video-monetization-edit-dialog.cancel-button-hidden .ytcp-video-monetization-edit-dialog #radioContainer #onRadio'
             )
             await page.evaluate(() =>
-                (
-                    document.querySelector(
-                        'ytcp-video-monetization-edit-dialog.cancel-button-hidden .ytcp-video-monetization-edit-dialog #radioContainer #onRadio'
-                    ) as HTMLInputElement
-                ).click()
+            (
+              document.querySelector(
+                'ytcp-video-monetization-edit-dialog.cancel-button-hidden .ytcp-video-monetization-edit-dialog #radioContainer #onRadio'
+                )
+                // @ts-expect-error
+                )?.click()
             )
 
             await sleep(1500)
@@ -180,7 +179,7 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
             await sleep(1500)
 
             await page.waitForXPath(nextBtnXPath)
-            next = await page.$x(nextBtnXPath)
+            await page.$x(nextBtnXPath)
             await $xclickElement(nextBtnXPath, page)
         } catch {}
 
@@ -191,10 +190,11 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
             )
             await page.evaluate(() =>
                 (
-                    document.querySelector(
-                        '.ytpp-self-certification-questionnaire .ytpp-self-certification-questionnaire #checkbox-container'
-                    ) as HTMLInputElement
-                ).click()
+                  document.querySelector(
+                    '.ytpp-self-certification-questionnaire .ytpp-self-certification-questionnaire #checkbox-container'
+                    )
+                    // @ts-expect-error
+                )?.click()
             )
 
             await sleep(1500)
@@ -205,14 +205,15 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
             )
             await page.evaluate(() =>
                 (
-                    document.querySelector(
-                        '.ytpp-self-certification-questionnaire .ytpp-self-certification-questionnaire #submit-questionnaire-button'
-                    ) as HTMLButtonElement
-                ).click()
+                  document.querySelector(
+                    '.ytpp-self-certification-questionnaire .ytpp-self-certification-questionnaire #submit-questionnaire-button'
+                    )
+                    // @ts-expect-error
+                )?.click()
             )
 
             await page.waitForXPath(nextBtnXPath)
-            next = await page.$x(nextBtnXPath)
+            await page.$x(nextBtnXPath)
             await $xclickElement(nextBtnXPath, page)
 
             await sleep(1500)
@@ -224,11 +225,11 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
     event?.emit("logs", "Click next button")
     await page.waitForXPath(nextBtnXPath)
     // click next button
-    next = await page.$x(nextBtnXPath)
+    await page.$x(nextBtnXPath)
     await $xclickElement(nextBtnXPath, page)
     await page.waitForXPath(nextBtnXPath)
     // click next button
-    next = await page.$x(nextBtnXPath)
+    await page.$x(nextBtnXPath)
     await $xclickElement(nextBtnXPath, page)
     
     event?.emit("logs", `Selecting video visibility: ${visibility}`)
