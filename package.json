@@ -1,5 +1,5 @@
 {
-  "name": "zyt-uploader",
+  "name": "zyt.uploader",
   "version": "1.0.3",
   "description": "",
   "main": "dist/index.js",
