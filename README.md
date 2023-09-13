@@ -6,7 +6,7 @@
 ------------
 
 
-##### **🚨important :** This is not the final version, happy only as a provisional, In case you find any issue, please raise an  [issue](https://github.com/zaacksb/zyt-uploader/issues/new/choose), So that I can fix it.<br>
+##### **🚨important :** This is not the final version, I did it just as a provisional, In case you find any issue, please raise an  [issue](https://github.com/zaacksb/zyt-uploader/issues/new/choose), So that I can fix it.<br>
   
 Please star this repo by clicking on [:star: button](#) above [:arrow_upper_right:](#)
 
