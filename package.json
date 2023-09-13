@@ -1,0 +1,40 @@
+{
+  "name": "zyt-uploader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zaacksb/zyt-uploader.git"
+  },
+  "funding": "https://github.com/sponsors/zaacksb",
+  "keywords": [
+    "youtube uploader",
+    "zyt",
+    "youtube",
+    "upload video",
+    "upload"
+  ],
+  "author": "ZackSB",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zaacksb/zyt-uploader/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.0",
+    "@types/puppeteer": "^7.0.4",
+    "puppeteer": "^21.1.1",
+    "tsup": "^7.2.0",
+    "tsx": "^3.12.8",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
