@@ -7,6 +7,7 @@ import type { PuppeteerLaunchOptions } from "puppeteer"
 import { $xclickElement, $xtypeInputElement, blockRequestsResources, convertJsonCookiesToText, waitForPageUrl } from "./utils"
 import { youtubeUpload } from "./upload"
 import { ZytUploaderEvents } from "./types"
+import { commentVideo } from "./comment"
 puppeteer.use(puppeteerStealthPlugin())
 
 export type LoginAndGetCookies = {
@@ -27,14 +28,19 @@ export type UploadVideo = {
 }
 
 
+export type commentVideo = {
+  videoId: string,
+  comment: string
+  pin?: boolean
+  launchOptions?: PuppeteerLaunchOptions
+  
+}
+
+
 
 export default class ZytUploader extends EventEmitter {
-  private cookies: any
+  #cookies: any = [{}]
 
-  constructor(){
-    super()
-    this.cookies = [{}]
-  }
 
   on<E extends keyof ZytUploaderEvents>(event: E, listener: ZytUploaderEvents[E]): this {
     return super.on(event, listener);
@@ -42,39 +48,46 @@ export default class ZytUploader extends EventEmitter {
   
   public async loginAndGetCookies({password, email, launchOptions, saveSession}: LoginAndGetCookies = { saveSession: true}){
     const cookies = await loginAndGetCookies({password, email, launchOptions})
-    if(saveSession) this.cookies = cookies
+    this.#cookies = cookies
     return cookies
   }
 
   public async loadCookiesFromFile(filePath: string){
-    if(!fs.existsSync(filePath)) throw new Error("Cookie file not found")
+    if(!fs.existsSync(filePath)) return console.error("Cookie file not found")
     try{
       const cookies = fs.readFileSync(filePath, { encoding: "utf-8" })
-      this.cookies = JSON.parse(cookies)
+      this.#cookies = JSON.parse(cookies)
+      return this.#cookies
     } catch (e){
-      throw new Error("Cookie file contains invalid json")
+      return console.error("Cookie file contains invalid json")
     }
   }
   public async saveCookiesOnDisk(filePath: string){
     try{
-     fs.writeFileSync(filePath, JSON.stringify(this.cookies), { encoding: "utf-8" })
+     fs.writeFileSync(filePath, JSON.stringify(this.#cookies), { encoding: "utf-8" })
     } catch (e){
-      throw new Error("Cannot save cookies on disk")
+      return console.error("Cannot save cookies on disk")
     }
   }
 
   public getLoadedCookies(){
-    return this.cookies
+    return this.#cookies
   }
 
-  public async cookiesIsValid(cookies: Record<string, Object>[] = this.cookies){
+  public async cookiesIsValid(cookies: Record<string, Object>[] = this.#cookies){
     return cookiesIsValid(cookies)
   }
 
   public async uploadVideo({ title, videoPath, description, tags, thumbnailPath, visibility, launchOptions}: UploadVideo){
-    if(!title || !videoPath) throw new Error("Missing title or videoPath")
-    if(!this.cookiesIsValid()) throw new Error("Invalid cookies")
-    return await youtubeUpload({title, videoPath, description, tags, thumbnailPath, visibility: visibility || "unlisted", launchOptions}, this.cookies, this)
+    if(!title || !videoPath) return console.error("Missing title or videoPath")
+    if(!this.cookiesIsValid()) return console.error("Invalid cookies")
+    return await youtubeUpload({title, videoPath, description, tags, thumbnailPath, visibility: visibility || "unlisted", launchOptions}, this.#cookies, this)
+  }
+
+  public async commentVideo({ comment, videoId, launchOptions, pin}: commentVideo){
+    if(!videoId || !comment) return console.error("Missing title or videoPath")
+    if(!this.cookiesIsValid()) return console.error("Invalid cookies")
+    return await commentVideo({comment, videoId, launchOptions, pin}, this.#cookies, this)
   }
   
 }

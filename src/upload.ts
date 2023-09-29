@@ -8,8 +8,7 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
     const maxTitleLen = 100;
     const maxDescLen = 5000;
     if(!cookies){
-      event?.emit("error", {code: "invalid_cookies", message: "An error occurred while parsing cookies for zyt"}) 
-      throw new Error("Invalid cookies")
+      return event?.emit("error", {code: "invalid_cookies", message: "An error occurred while parsing cookies for zyt"}) 
     }
 
     const browser = await puppeteer.launch({
@@ -50,8 +49,7 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
       )
     if (errorMessage) {
         await browser.close()
-        event?.emit("error", {code: "youtube_error", message: `Youtube returned an error: ${errorMessage}`})
-        throw new Error('Youtube returned an error : ' + errorMessage)
+       return event?.emit("error", {code: "youtube_error", message: `Youtube returned an error: ${errorMessage}`})
     }
 
 
@@ -62,7 +60,6 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
     if (dailyUploadPromise === 'dailyUploadReached') {
       browser.close()
       event?.emit("dailyLimit", "Daily upload limit reached") 
-      throw new Error('Daily upload limit reached')
     }
 
     event?.emit("logs", "Waiting upload complete") 
@@ -120,11 +117,11 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
 
 
     let showMoreButton = await page.$('#toggle-button')
-      if (showMoreButton == undefined) throw `uploadVideo - Toggle button not found.`
+      if (showMoreButton == undefined) return event?.emit("error", `uploadVideo - Toggle button not found.`)
       else {
           while ((await page.$('ytcp-video-metadata-editor-advanced')) == undefined) {
-              await showMoreButton.click()
-              await sleep(1000)
+            await showMoreButton.click()
+            await sleep(1000)
           }
       }
 
@@ -281,7 +278,7 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
 
     // no closeBtn will show up if keeps video as draft
     event?.emit("logs", "Waiting networkIdle, publication confirmation")
-    await page.waitForNetworkIdle()
+    await page.waitForNetworkIdle({idleTime: 1000})
     if (uploadAsDraft){
       resolve(uploadedLink)
       
@@ -289,18 +286,17 @@ export async function youtubeUpload({title, videoPath, description, tags, thumbn
     
     // Wait for closebtn to show up
     
+    event?.emit("logs", "Video uploaded successfully")
+    event?.emit("uploaded", uploadedLink)
+    await sleep(10000)
+    event?.emit("logs", "Closing browser")
     try {
       await page.waitForXPath(closeBtnXPath)
     } catch (e) {
       await browser.close()
-      throw new Error(
-        'Please make sure you set up your default video visibility correctly, you might have forgotten. More infos : https://github.com/fawazahmed0/youtube-uploader#youtube-setup'
-        )
-      }
-      event?.emit("logs", "Closing browser")
-      await browser.close()
-    event?.emit("logs", "Video uploaded successfully")
-    event?.emit("uploaded", uploadedLink)
+      return event?.emit("error",'Please make sure you set up your default video visibility correctly, you might have forgotten. More infos : https://github.com/fawazahmed0/youtube-uploader#youtube-setup')
+    }
+    await browser.close()
     resolve(uploadedLink)
   })
 }
