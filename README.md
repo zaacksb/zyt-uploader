@@ -77,11 +77,11 @@ const videoUrl = await zytUploader.uploadVideo({
 #### set up event listeners for progress, logs, errors, daily limit, and upload completion:
 ```js
 zytUploader.on('progress', ({action, percentage, remainingTime}) => {
-    console.log(status);
+    console.log({action, percentage, remainingTime});
 });
 
 zytUploader.on('progressText', (progress) => {
-    console.log(Event progress: ${progress});
+    console.log(`Event progress: ${progress}`);
 });
 
 zytUploader.on('logs', (log) => {
@@ -97,7 +97,7 @@ zytUploader.on('error', (error) => {
 });
 
 zytUploader.on('uploaded', (url) => {
-    console.log(Video uploaded: ${url});
+    console.log(`Video uploaded: ${url}`);
 });
 ```
 
